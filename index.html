@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>شمعة</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#12100f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="شمعة">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="./icon-192.png">
+<style>
+  :root{
+    --bg:#12100f; --panel:#1b1816; --line:#2b2724;
+    --cream:#f2e8d5; --ember:#f0a03a; --core:#ffd98a; --dim:#8a8078;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--cream);
+    font-family:"Segoe UI",system-ui,"Noto Naskh Arabic",sans-serif;
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:space-between; padding:28px 20px calc(24px + env(safe-area-inset-bottom));
+    overflow:hidden; -webkit-tap-highlight-color:transparent;
+  }
+  header{text-align:center}
+  h1{margin:0; font-size:22px; font-weight:600; letter-spacing:.5px}
+  .sub{margin:6px 0 0; font-size:13px; color:var(--dim)}
+
+  .stage{position:relative; display:flex; align-items:center; justify-content:center; flex:1; width:100%}
+  .halo{
+    position:absolute; width:280px; height:280px; border-radius:50%;
+    background:radial-gradient(circle,rgba(240,160,58,.30),rgba(240,160,58,0) 65%);
+    opacity:0; transition:opacity .5s ease;
+  }
+  body.lit .halo{opacity:1; animation:breathe 3.6s ease-in-out infinite}
+  @keyframes breathe{50%{transform:scale(1.08)}}
+
+  svg{position:relative; width:150px; height:auto}
+  #flame{opacity:0; transform-origin:50% 100%; transition:opacity .28s ease}
+  body.lit #flame{opacity:1; animation:flicker 1.5s ease-in-out infinite}
+  @keyframes flicker{
+    0%,100%{transform:scale(1,1) translateX(0)}
+    30%{transform:scale(.94,1.06) translateX(-1px)}
+    60%{transform:scale(1.05,.96) translateX(1.5px)}
+  }
+  #smoke{opacity:0}
+  body.smoking #smoke{animation:smoke 1.6s ease-out 1}
+  @keyframes smoke{
+    0%{opacity:.55; transform:translateY(0) scaleX(1)}
+    100%{opacity:0; transform:translateY(-38px) scaleX(1.6)}
+  }
+
+  .controls{display:flex; gap:14px; width:100%; max-width:340px}
+  button{
+    flex:1; padding:18px 0; font-size:19px; font-weight:700; letter-spacing:1px;
+    border-radius:16px; border:1px solid var(--line); background:var(--panel);
+    color:var(--cream); cursor:pointer; transition:transform .12s, background .2s, border-color .2s;
+    font-family:inherit;
+  }
+  button:active{transform:scale(.97)}
+  button:focus-visible{outline:2px solid var(--ember); outline-offset:3px}
+  #on[aria-pressed="true"]{background:var(--ember); border-color:var(--ember); color:#1a1105}
+  #off[aria-pressed="true"]{background:#2b2724; border-color:#3a352f}
+
+  .diag{
+    width:100%; max-width:340px; margin-top:18px; padding:12px 14px;
+    border:1px solid var(--line); border-radius:14px; background:var(--panel);
+    font-size:13px; color:var(--dim); line-height:1.9;
+  }
+  .diag div{display:flex; justify-content:space-between; gap:10px}
+  .diag b{color:var(--cream); font-weight:600}
+  #install{
+    display:none; width:100%; max-width:340px; margin-top:12px; padding:14px 0;
+    background:transparent; border:1px dashed var(--ember); color:var(--ember); font-size:15px;
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
+</style>
+</head>
+<body class="lit">
+
+<header>
+  <h1>شمعة</h1>
+  <p class="sub">تطبيق فحص التثبيت</p>
+</header>
+
+<div class="stage">
+  <div class="halo"></div>
+  <svg viewBox="0 0 100 150" aria-hidden="true">
+    <g id="smoke">
+      <path d="M50 58 q-4 -8 0 -14 q4 -6 0 -12" stroke="#8a8078" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="flame">
+      <path d="M50 30 q9 12 9 22 q0 12 -9 16 q-9 -4 -9 -16 q0 -10 9 -22z" fill="#f0a03a"/>
+      <path d="M50 44 q5 7 5 13 q0 7 -5 9 q-5 -2 -5 -9 q0 -6 5 -13z" fill="#ffd98a"/>
+    </g>
+    <line x1="50" y1="62" x2="50" y2="70" stroke="#3a322c" stroke-width="3" stroke-linecap="round"/>
+    <rect x="34" y="70" width="32" height="58" rx="6" fill="#f2e8d5"/>
+    <rect x="56" y="70" width="10" height="58" rx="5" fill="#d6c8b0"/>
+    <ellipse cx="50" cy="70" rx="16" ry="5" fill="#faf3e6"/>
+  </svg>
+</div>
+
+<div class="controls">
+  <button id="on" aria-pressed="true">ON</button>
+  <button id="off" aria-pressed="false">OFF</button>
+</div>
+
+<button id="install">تثبيت التطبيق</button>
+
+<div class="diag">
+  <div><span>طريقة التشغيل</span><b id="d-mode">—</b></div>
+  <div><span>Service Worker</span><b id="d-sw">—</b></div>
+  <div><span>جاهز للتثبيت</span><b id="d-prompt">بانتظار المتصفح…</b></div>
+</div>
+
+<script>
+  const body = document.body;
+  const on = document.getElementById('on');
+  const off = document.getElementById('off');
+
+  function setState(lit){
+    if(!lit && body.classList.contains('lit')){
+      body.classList.add('smoking');
+      setTimeout(()=>body.classList.remove('smoking'), 1600);
+    }
+    body.classList.toggle('lit', lit);
+    on.setAttribute('aria-pressed', lit);
+    off.setAttribute('aria-pressed', !lit);
+    try{ localStorage.setItem('shamaa', lit ? '1' : '0'); }catch(e){}
+  }
+  on.addEventListener('click', ()=>setState(true));
+  off.addEventListener('click', ()=>setState(false));
+  try{ if(localStorage.getItem('shamaa') === '0') setState(false); }catch(e){}
+
+  const standalone = window.matchMedia('(display-mode: standalone)').matches
+                  || window.navigator.standalone === true;
+  document.getElementById('d-mode').textContent = standalone ? 'تطبيق مستقل ✓' : 'داخل المتصفح';
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=>{ document.getElementById('d-sw').textContent = 'مُسجَّل ✓'; })
+      .catch(err=>{ document.getElementById('d-sw').textContent = 'فشل: ' + err.message; });
+  } else {
+    document.getElementById('d-sw').textContent = 'غير مدعوم';
+  }
+
+  let deferred = null;
+  const installBtn = document.getElementById('install');
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault();
+    deferred = e;
+    document.getElementById('d-prompt').textContent = 'نعم ✓';
+    installBtn.style.display = 'block';
+  });
+  installBtn.addEventListener('click', async ()=>{
+    if(!deferred) return;
+    deferred.prompt();
+    const res = await deferred.userChoice;
+    document.getElementById('d-prompt').textContent =
+      res.outcome === 'accepted' ? 'تم القبول ✓' : 'رفض المستخدم';
+    deferred = null;
+    installBtn.style.display = 'none';
+  });
+  window.addEventListener('appinstalled', ()=>{
+    document.getElementById('d-prompt').textContent = 'مُثبَّت ✓';
+  });
+  if(standalone){ document.getElementById('d-prompt').textContent = 'مُثبَّت ✓'; }
+</script>
+</body>
+</html>
