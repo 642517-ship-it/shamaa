@@ -1,4 +1,4 @@
-const CACHE = 'shamaa-v3';
+const CACHE = 'shamaa-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -21,18 +21,39 @@ self.addEventListener('activate', event => {
   );
 });
 
+// هل الطلب لصفحة HTML؟ (فتح التطبيق أو تحديث الصفحة)
+function isPage(request) {
+  return request.mode === 'navigate' ||
+         (request.headers.get('accept') || '').includes('text/html');
+}
+
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request)
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  // الصفحة: من الشبكة أولًا — فيظهر أي تحديث فورًا، والكاش احتياط عند انقطاع الإنترنت
+  if (isPage(request)) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
         .then(res => {
           const copy = res.clone();
-          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          caches.open(CACHE).then(cache => cache.put('./index.html', copy));
           return res;
         })
-        .catch(() => caches.match('./index.html'));
+        .catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
+    );
+    return;
+  }
+
+  // بقية الملفات (أيقونات، manifest): من الكاش أولًا للسرعة
+  event.respondWith(
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+      return fetch(request).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(cache => cache.put(request, copy));
+        return res;
+      });
     })
   );
 });
