@@ -1,4 +1,4 @@
-const CACHE = 'shamaa-v2';
+const CACHE = 'shamaa-v3';
 const ASSETS = [
   './',
   './index.html',
