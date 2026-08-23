@@ -63,8 +63,8 @@
   }
   button:active{transform:scale(.97)}
   button:focus-visible{outline:2px solid var(--ember); outline-offset:3px}
-  #on[aria-pressed="true"]{background:var(--ember); border-color:var(--ember); color:#1a1105}
-  #off[aria-pressed="true"]{background:#2b2724; border-color:#3a352f}
+  #toggle[aria-checked="true"]{background:var(--ember); border-color:var(--ember); color:#1a1105}
+  #toggle[aria-checked="false"]{background:#2b2724; border-color:#3a352f; color:var(--dim)}
 
   .diag{
     width:100%; max-width:340px; margin-top:18px; padding:12px 14px;
@@ -105,8 +105,7 @@
 </div>
 
 <div class="controls">
-  <button id="on" aria-pressed="true">ON</button>
-  <button id="off" aria-pressed="false">OFF</button>
+  <button id="toggle" role="switch" aria-checked="true" aria-label="الشمعة">ON</button>
 </div>
 
 <button id="install">تثبيت التطبيق</button>
@@ -119,8 +118,7 @@
 
 <script>
   const body = document.body;
-  const on = document.getElementById('on');
-  const off = document.getElementById('off');
+  const btn = document.getElementById('toggle');
 
   function setState(lit){
     if(!lit && body.classList.contains('lit')){
@@ -128,12 +126,11 @@
       setTimeout(()=>body.classList.remove('smoking'), 1600);
     }
     body.classList.toggle('lit', lit);
-    on.setAttribute('aria-pressed', lit);
-    off.setAttribute('aria-pressed', !lit);
+    btn.setAttribute('aria-checked', lit);
+    btn.textContent = lit ? 'ON' : 'OFF';
     try{ localStorage.setItem('shamaa', lit ? '1' : '0'); }catch(e){}
   }
-  on.addEventListener('click', ()=>setState(true));
-  off.addEventListener('click', ()=>setState(false));
+  btn.addEventListener('click', ()=>setState(!body.classList.contains('lit')));
   try{ if(localStorage.getItem('shamaa') === '0') setState(false); }catch(e){}
 
   const standalone = window.matchMedia('(display-mode: standalone)').matches
